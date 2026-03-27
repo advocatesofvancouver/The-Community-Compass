@@ -1,0 +1,2490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Greater Vancouver Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; }
+    #map { height: 90vh; }
+    #filters {
+      padding: 10px;
+      background: #f8f8f8;
+      border-bottom: 1px solid #ccc;
+    }
+    #filters label {
+      margin-right: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Filters -->
+  <div id="filters">
+    <label style="color: green;"><input type="checkbox" value="FoodBanks" checked> Food Banks </label>
+    <label style="color: blue;"><input type="checkbox" value="LegalAssistance" checked> Legal Assistance </label>
+    <label style="color: red;"><input type="checkbox" value="ChildCare" checked> Child Care </label>
+    <label style="color: orange;"><input type="checkbox" value="Accountants" checked> Accountants </label>
+    <label style="color: rgb(187, 47, 247);"><input type="checkbox" value="Education" checked> Education </label>
+    <label style="color: rgb(78, 78, 78);"><input type="checkbox" value="LowCostGoods" checked> Low Cost Goods </label>
+    <label style="color: black;"><input type="checkbox" value="MentalConsultants" checked> Mental Consultants (TBA) </label>
+    <label style="color: rgb(255, 196, 93);"><input type="checkbox" value="ImmigrationServices" checked> Immigration Services (TBA)</label>
+    <label style="color: lightblue;"><input type="checkbox" value="SeniorServices" checked> Senior Services (TBA) </label>
+    <label style="color: rgb(255, 217, 0);"><input type="checkbox" value="HousingAssistance" checked> Housing Assistance (TBA) </label>
+
+    Í
+  </div>
+
+  <!-- Map container -->
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // 1. Initialize the map centered on Vancouver
+    const map = L.map('map').setView([49.2827, -123.1207], 11);
+
+const foodbanksIcon = L.icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",
+  shadowUrl: "https://unpkg.com/leaflet/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34]
+});
+const legalassistanceIcon = L.icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png",
+  shadowUrl: "https://unpkg.com/leaflet/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34]
+});
+const childcareIcon = L.icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+  shadowUrl: "https://unpkg.com/leaflet/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34]
+});
+const accountantsIcon = L.icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-orange.png",
+  shadowUrl: "https://unpkg.com/leaflet/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34]
+});   
+const housingassistanceIcon = L.icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-yellow.png",
+  shadowUrl: "https://unpkg.com/leaflet/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34]
+});   
+const educationIcon = L.icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png",
+  shadowUrl: "https://unpkg.com/leaflet/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34]
+});   
+const lowcostgoodsIcon = L.icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-grey.png",
+  shadowUrl: "https://unpkg.com/leaflet/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34]
+});   
+const mentalconsultantsIcon = L.icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-black.png",
+  shadowUrl: "https://unpkg.com/leaflet/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34]
+});   
+const immigrationservicesIcon = L.icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-gold.png",
+  shadowUrl: "https://unpkg.com/leaflet/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34]
+});   
+const seniorservicesIcon = L.icon({
+  iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-lightblue.png",
+  shadowUrl: "https://unpkg.com/leaflet/dist/images/marker-shadow.png",
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34]
+});   
+function getIcon(category) {
+  if (category === "FoodBanks") return foodbanksIcon;
+  if (category === "LegalAssistance") return legalassistanceIcon;
+  if (category === "ChildCare") return childcareIcon;
+  if (category === "Accountants") return accountantsIcon;
+  if (category === "Education") return educationIcon;
+  if (category === "LowCostGoods") return lowcostgoodsIcon;
+  if (category === "MentalConsultants") return mentalconsultantsIcon;
+  if (category === "Immigrationservices") return immigrationservicesIcon;
+  if (category === "SeniorServices") return seniorservicesIcon;
+  if (category === "HousingAssistance") return housingassistanceIcon;
+
+  return immigrationservicesIcon; // default
+}
+const legend = L.control({ position: 'bottomleft' });
+
+legend.onAdd = function(map) {
+  const div = L.DomUtil.create('div', 'info legend');
+  const categories = ["Food Banks", "Legal Assistance", "Child Care", "Accountants", "Education", "Low Cost Goods", "Mental Consultants", "Immigraton Services", "Senior Services", "Housing Assisance"];
+  const colors = ["green", "blue", "red", "orange", "yellow", "violet", "grey", "black", "white", "lightblue"]; // same colors as your icons
+
+  categories.forEach((cat, i) => {
+    div.innerHTML +=
+      `<i style="background:${colors[i]}; width: 18px; height: 18px; display: inline-block; margin-right: 8px;"></i>${cat}<br>`;
+  });
+
+  return div;
+};
+
+
+legend.addTo(map);
+
+    
+    // 2. Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // 3. Sample locations
+    const locations = [
+
+  // LAWYERS 01
+      { name: "Legal Aid BC",
+  category: "LegalAssistance",
+  lat: 49.2861,
+  lng: -123.1176,
+  description: `
+    <b>Website:</b>
+    <a href="https://legalaid.bc.ca" target="_blank" rel="noopener noreferrer">
+      legalaid.bc.ca
+    </a><br>
+    <b>Phone:</b> 604-408-2171<br>
+    <b>Address:</b> 400–510 Burrard Street, Vancouver, BC V6C 3A8<br>
+    <b>Rating:</b> 3.9 ★<br>
+
+      <details>
+    <summary>More info</summary><br>
+    <u><b>Family LawLINE:</u></b><br> 
+   - Legal advice over the phone from a family lawyer.<br>
+    <b>Covers issues such as:</b><br>
+   -  Parenting time / contact<br>
+   - Guardianship / custody arrangements<br>
+   -  Child support and spousal support$<br>
+   - Limited property-division advice<br>
+   - Family agreements<br>
+   - Child protection<br>
+   - Court procedures<br>
+    <b>Eligibility:</b> those with low income may qualify for free advice<br>
+    <b>Languages:</b> Interpreters available in 100+ languages.<br>
+    <b>Hours:</b><br>
+      - Monday, Tuesday, Thursday, Friday: 9:00 am–4:00 pm<br>
+      - Wednesday: 9:00 am–2:30 pm
+    <b>How to Access:</b> call 604-408-2171 to check eligibility.<br>
+    <u><b>Representation:</u></b><br> 
+    <b>Service:</b>Legal Aid provides a lawyer to fully represent your case.<br>  
+    <b>Eligibility:</b><br>
+    - Must meet Legal Aid’s financial guidelines.<br> 
+    - No other way of obtaining legal help.<br> 
+    - Legal problem falls under covered areas, including:<br> 
+    - Criminal charges<br> 
+    - Mental health and prison issues<br> 
+    - Serious family law problems<br> 
+    - Child protection matters<br> 
+    - Immigration and refugee issues<br> 
+    <b>Cost:</b>Usually free if eligible (some cases may require a small repayment agreement).<br> 
+    <b><u>Duty Counsel Lawyers</b></u><br> 
+    <b>Services:</b>Lawyers provide same-day, limited legal advice at court.<br>
+    <b>Covers issues such as:</b>Family, child protection, immigration, and criminal law.<br>
+    <b>Eligibility:</b>Low-income individuals per Legal Aid rules.<br>
+    <b>Limitations:</b> Cannot take your case long-term or represent you at trial.<br>
+    <b>Cost:</b>Free for those who qualify.
+
+  </details>
+
+  `
+},
+  // LAWYERS 02
+     { name: "Access Pro Bono Society of BC",
+  category: "LegalAssistance",
+  lat: 49.2779, 
+  lng: -123.1162,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.accessprobono.ca/" target="_blank" rel="noopener noreferrer">
+      https://www.accessprobono.ca/
+    </a><br>
+    <b>Phone:</b> 604-878-7400 <br>
+    <b>Address:</b> 845 Cambie Street, Vancouver, BC V6B 5T3<br>
+    <b>Rating:</b> 2.8 ★<br>
+
+      <details>
+    <summary>More info</summary><br>
+    <u><b>1. Lawyer Referral Service:</u></b><br> 
+   - Helps BC residents connect with a lawyer or articling clinician for a free 15 minute consultation (Your lawyer may charge you an hourly rate if your time exceeds 15 minutes).<br>
+    <b>Eligibility:</b> Available to all BC residents.<br>
+    <b>How it works:</b><br>
+    - Call 604-687-3221 (Mon–Fri, 8:30 am–4:30 pm).<br>
+    - Explain your legal issue briefly.<br>
+    - Staff refer you to a suitable lawyer who offers a free short consultation.<br>
+    - No obligation to continue after the consultation.<br>
+    <b>Cost beyond referral:</b><br> If you choose to proceed, the lawyer charges their standard rate.
+
+    <u><b>Everyone Legal Clinic:</u></b><br> 
+    <b>Service:</b>Affordable legal help from articling clinicians (recent law grads under supervision), available via telephone or video.<br>  
+    <b>Fields covered:</b><br>Family, tenancy, employment, wills/estates, civil, corporate, consumer, and criminal law.
+    <b>How to Access:</b> Call 778-200-4478 to book an initial 30-minute video or phone session.<br>
+    <u><b>Representation:</u></b><br> 
+    <b>Eligibility:</b><br>
+    - Must pay a fixed low fee after the first meeting,<br> 
+    - Use phone or video consultation,<br> 
+    - Understand English.<br> 
+  
+   <u><b>Residential Tenancy Program:</u></b><br> 
+    <b>Services:</b>Free legal help for low- to modest-income individuals dealing with tenancy issues.<br>
+    <b>Matters supported:</b><br>
+    - Landlord eviction disputes,<br>
+    - Illegal rent increases,<br>
+    - Disruptions to quiet enjoyment (e.g. unauthorized entries, noise),<br>
+    - Requests for necessary repairs,<br>
+    - Security deposit disputes,<br>
+    - Appearing at hearings.<br>
+    <b>How to apply:</b>Email tenancylaw@accessprobono.ca with your name, contact info, and hearing date.<br>
+    <b>Response time:</b> You’ll receive a callback within two business days.<br>
+
+   <u><b>Roster Program:</u></b><br> 
+    <b>Services:</b>Free, volunteer lawyer representation for low- and modest-income clients in certain legal case types.<br>
+    <b>Scope includes:</b><br>
+    - Civil or criminal litigation (Barristers’ Program),<br>
+    - Family law (limited-scope support and trials),<br>
+    - Appeals in Family or Civil matters (Court of Appeal Program),<br>
+    - Refugee sponsorship cases,<br>
+    - Wills & estates (non-litigation).<br>
+    <b>How it works:</b>Staff review applications and forward to volunteer lawyers. Lawyers may choose to take cases and define the level of involvement themselves.<br>
+    - Enquire about Roster Program services at roster@accessprobono.ca,.<br>
+
+    <u><b>Solicitors’ Program</u></b><br> 
+    <b>Services:</b>Free legal assistance for BC-based charities and non-profits with limited means (non-litigation matters).<br>
+    <b>Scope includes:</b><br>
+    - Incorporation and by-law drafting,<br>
+    - Charitable registration,<br>
+    - Contracts and leases,,<br>
+    - Employment issues,<br>
+    - Other organizational legal needs.<br>
+    <b>How it works:</b>Staff review applications and attempt to connect requests with a volunteer lawyer from the program’s roster.<br>
+    - Enquire about Solicitors’ Program services at: roster@accessprobono.ca<br>
+
+    <u><b>Virtual Family Mediation Program</u></b><br> 
+    <b>Service:</b>Free online mediation and legal advice for family law disputes (property division, child support, parenting, debt, spousal support).<br>  
+    <b>Eligibility:</b>Both parties must agree to mediate; at least one must meet financial eligibility (check website).   
+    <b>How to Access:</b> Email familymediation@accessprobono.ca.<br>
+  </details>
+
+  ` 
+},
+  // LAWYERS 03
+      { name: "North Shore Community Resources Society (Community Legal Services)",
+  category: "LegalAssistance",
+  lat: 49.3218,
+  lng: -123.0995,
+  description: `
+    <b>Website:</b>
+    <a href="legal.nscr.ca" target="_blank" rel="noopener noreferrer">
+      legal.nscr.ca
+    </a><br>
+    <b>Phone:</b> 604-985-7138<br>
+    <b>Address:</b>201-935 Marine Dr, North Vancouver, BC V7P 1S3 <br>
+    <b>Rating:</b> 4.2★<br>
+
+      <details>
+    <summary>More info</summary><br>
+    <u><b>Family Law Advocate Program:</u></b><br> 
+    <b>Service:</b>Free help with family law issues — including parenting time, child/spousal support,and divorces.<br>
+    <b>Eligibility:</b> Clients at any income level are entitled to two hours of services. If you require more time, you will need to meet their low income eligibility guidelines. <br>
+    <b>How to Access:</b>  Fill out their form, call 604-982-3304, or email christopher.mottershead@nscr.ca.<br>
+    <b>Scope Includes:</b><br>
+    - Tenancy<br>
+    - Employment<br>
+    - Employment Insurance<br>
+    - Income Assistance<br>
+    - Debt<br>
+    - Referrals for legal issues they do not provide assistance for<br>
+   <b>Eligibility:</b> Low-income North Shore residents. <br>
+   <b>How to Access:</b>Call 604-982-3310 to book a session (drop-ins welcome, but appointments recommended).<br>
+  <u><b>Legal Information & Assistance Program:</u></b><br> 
+    <b>Service:</b>Free services and legal information<br>
+    <b>Scope Includes:</b><br>
+    - Information about Legal Aid BC intake,<br>
+    - Information about employment law related questions,<br>
+    - Information about advice and representation services,<br>
+    - Help applying for legal aid,<br>
+    - General legal education,<br>
+    - Wills/Estates Assistance,<br>
+    - Employment Insurance Assistance,<br>
+    - Family Sponsorship Assistance.<br>
+    <b>Eligibility:</b> North Shore residents. <br>
+   <b>Languages:</b>English and some Farsi support.<br>
+   <b>How to Access:</b>Call 604-982-3314 or email fariba.aghdassi@nscr.ca.<br>
+  </details>
+
+  `
+},
+  // LAWYERS 04 
+      { name: "North Shore Women’s Centre (Family Law Clinic)",
+  category: "LegalAssistance",
+  lat: 40.3122,
+  lng: -123.0768,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.northshorewomen.ca/" target="_blank" rel="noopener noreferrer">
+      https://www.northshorewomen.ca/
+    </a><br>
+    <b>Phone:</b> 604-984-6009<br>
+    <b>Address:</b>131 East 2nd St, North Vancouver, BC V7L 1C2<br>
+    <b>Rating:</b> 4.4 ★<br>
+
+      <details>
+    <summary>More info</summary><br>
+    <u><b>Family Law Advocate Program:</u></b><br> 
+    <b>Service:</b>Free help with family law issues — including parenting time, child/spousal support,and divorces.<br>
+    <b>Eligibility:</b> Clients at any income level are entitled to two hours of services. If you require more time, you will need to meet their low income eligibility guidelines. <br>
+    <b>How to Access:</b>  Fill out their form, call 604-982-3304, or email christopher.mottershead@nscr.ca.<br>
+    <b>Scope Includes:</b><br>
+    - Tenancy<br>
+    - Employment<br>
+    - Employment Insurance<br>
+    - Income Assistance<br>
+    - Debt<br>
+    - Referrals for legal issues they do not provide assistance for<br>
+   <b>Eligibility:</b> Low-income North Shore residents. <br>
+   <b>How to Access:</b>Call 604-982-3310 to book a session (drop-ins welcome, but appointments recommended).<br>
+  <u><b>Legal Information & Assistance Program:</u></b><br> 
+    <b>Service:</b>Free services and legal information<br>
+    <b>Scope Includes:</b><br>
+    - Information about Legal Aid BC intake,<br>
+    - Information about employment law related questions,<br>
+    - Information about advice and representation services,<br>
+    - Help applying for legal aid,<br>
+    - General legal education,<br>
+    - Wills/Estates Assistance,<br>
+    - Employment Insurance Assistance,<br>
+    - Family Sponsorship Assistance.<br>
+    <b>Eligibility:</b> North Shore residents. <br>
+   <b>Languages:</b>English and some Farsi support.<br>
+   <b>How to Access:</b>Call 604-982-3314 or email fariba.aghdassi@nscr.ca.<br>
+  </details>
+
+  `
+},
+  // LAWYERS 05
+   {name: "Family Justice Centres – Langley",
+category: "LegalAssistance",
+lat: 49.1191,
+lng: -122.6566,
+description: `
+  <b>Website:</b>
+  <a href="https://www2.gov.bc.ca/gov/content/life-events/divorce/family-justice/who-can-help/family-justice-services-division/family-justice-centres/locations/langley" target="_blank" rel="noopener noreferrer">
+    https://www2.gov.bc.ca/gov/content/life-events/divorce/family-justice/who-can-help/family-justice-services-division/family-justice-centres/locations/langley
+  </a><br>
+  <b>Phone:</b> 1-888-664-3344 (toll-free)<br>
+  <b>Address:</b> Building 100, 120-20434 64th Avenue, Langley, BC V2Y 1N4<br>
+
+  <details>
+    <summary>More info</summary><br>
+
+    <u><b>Eligibility:</b></u><br>
+    • Open to all individuals<br><br>
+
+    <u><b>Services Provided:</b></u><br>
+    • Parenting arrangements<br>
+    • Guardianship<br>
+    • Child and spousal support<br>
+    • Contact with a child<br>
+    • Property division concerning companion animals<br><br>
+
+    <u><b>Additional Support:</b></u><br>
+    • Court forms and processes assistance<br>
+    • Referrals to community resources and agencies<br>
+    • Family Justice Counsellors: Accredited mediators providing services virtually via telephone and video conferencing<br><br>
+
+    <u><b>Access:</b></u><br>
+    • By appointment only; no drop-ins permitted<br><br>
+
+    <u><b>Hours:</b></u><br>
+    • Virtual services: Mon–Tues 8am–5:30pm, Wed 8am–4:30pm, Thurs–Fri 8am–5:30pm<br>
+    • In-person services: Mon–Wed 8am–5:30pm<br>
+
+  </details>
+`},
+  // LAWYERS 06
+   {name: "Family Justice Centres – Maple Ridge",
+category: "LegalAssistance",
+lat: 49.2201,
+lng: -122.6030,
+description: `
+  <b>Website:</b>
+  <a href="https://www2.gov.bc.ca/gov/content/life-events/divorce/family-justice/who-can-help/family-justice-services-division/family-justice-centres/locations/maple" target="_blank" rel="noopener noreferrer">
+    BC Family Justice Centre – Maple Ridge
+  </a><br>
+  <b>Phone:</b> 1-888-664-3344 (toll-free)<br>
+  <b>Address:</b> 102-22356 McIntosh Ave, Maple Ridge, BC V2X 3C1<br>
+
+  <details>
+    <summary>More info</summary><br>
+
+    <u><b>Eligibility:</b></u><br>
+    • Open to all individuals<br><br>
+
+    <u><b>Services Provided:</b></u><br>
+    • Parenting arrangements<br>
+    • Guardianship<br>
+    • Child and spousal support<br>
+    • Contact with a child<br>
+    • Property division concerning companion animals<br><br>
+
+    <u><b>Additional Support:</b></u><br>
+    • Court forms and processes assistance<br>
+    • Referrals to community resources and agencies<br>
+    • Family Justice Counsellors: Accredited mediators providing services virtually via telephone and video conferencing<br><br>
+
+    <u><b>Access:</b></u><br>
+    • By appointment only; no drop-ins permitted<br><br>
+
+    <u><b>Hours:</b></u><br>
+    • Virtual services: Monday–Friday, 8:30 AM–4:30 PM<br>
+
+  </details>
+`},
+  // LAWYERS 07
+   {name: "Family Justice Centres – New Westminster",
+category: "LegalAssistance",
+lat: 49.2014,
+lng: -122.9171,
+description: `
+  <b>Website:</b>
+  <a href="https://www.clicklaw.bc.ca/services/family-justice-centres" target="_blank" rel="noopener noreferrer">
+    Clicklaw – Family Justice Centres
+  </a><br>
+  <b>Phone:</b> 1-888-664-3344 (toll-free)<br>
+  <b>Address:</b> Columbia Square Plaza, 204-88 10th Street, New Westminster, BC V3M 6H8<br>
+
+  <details>
+    <summary>More info</summary><br>
+
+    <u><b>Eligibility:</b></u><br>
+    • Open to all individuals<br><br>
+
+    <u><b>Services Provided:</b></u><br>
+    • Parenting arrangements<br>
+    • Guardianship<br>
+    • Child and spousal support<br>
+    • Contact with a child<br>
+    • Property division concerning companion animals<br><br>
+
+    <u><b>Additional Support:</b></u><br>
+    • Court forms and processes assistance<br>
+    • Referrals to community resources and agencies<br>
+    • Family Justice Counsellors: Accredited mediators providing services virtually via telephone and video conferencing<br><br>
+
+    <u><b>Access:</b></u><br>
+    • By appointment only; no drop-ins permitted<br><br>
+
+    <u><b>Hours:</b></u><br>
+    • In-person services: Monday–Friday, 8:00 AM–5:15 PM<br>
+    • Virtual services: Monday–Friday, 8:30 AM–4:30 PM<br>
+
+  </details>
+`},
+  // LAWYERS 08
+   {name: "Family Justice Centres – North Vancouver",
+  category: "LegalAssistance",
+  lat: 49.3139,
+  lng: -123.0831,
+  description: `
+    <b>Website:</b>
+    <a href="https://www2.gov.bc.ca/gov/content/life-events/divorce/family-justice/who-can-help/family-justice-services-division/family-justice-centres/locations/north-vancouver" target="_blank" rel="noopener noreferrer">
+      Government of BC – North Vancouver Location
+    </a><br>
+    <b>Phone:</b> 1-888-664-3344 (toll-free)<br>
+    <b>Local Phone:</b> 604-981-0084<br>
+    <b>Address:</b> 100-233 West 1st Street, North Vancouver, BC V7M 1B3<br>
+    <b>Rating:</b> N/A<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Eligibility:</b></u><br>
+      • Open to all individuals<br><br>
+
+      <u><b>Services Provided:</b></u><br>
+      • Parenting arrangements<br>
+      • Guardianship<br>
+      • Child and spousal support<br>
+      • Contact with a child<br>
+      • Property division concerning companion animals<br><br>
+
+      <u><b>Additional Support:</b></u><br>
+      • Court forms and processes assistance<br>
+      • Referrals to community resources and agencies<br>
+      • Family Justice Counsellors: Accredited mediators providing services virtually via telephone and video conferencing<br><br>
+
+      <u><b>Access:</b></u><br>
+      • By appointment only; no drop-ins permitted<br><br>
+
+      <u><b>Hours:</b></u><br>
+      • In-person services:<br>
+        - Monday, Wednesday, Thursday: 8:30 AM–5:00 PM<br>
+        - Tuesday, Friday: 8:30 AM–4:20 PM<br><br>
+      • Virtual services:<br>
+        - Monday–Thursday: 8:00 AM–5:00 PM<br>
+        - Friday: 8:00 AM–4:20 PM<br>
+
+    </details>
+  `
+},
+  // LAWYERS 09 
+    { name: "Family Justice Centres – Richmond",
+  category: "LegalAssistance",
+  lat: 49.1731,
+  lng: -123.1410,
+  description: `
+    <b>Website:</b>
+    <a href="https://www2.gov.bc.ca/gov/content/life-events/divorce/family-justice/who-can-help/family-justice-services-division/family-justice-centres/locations/richmond" target="_blank" rel="noopener noreferrer">
+      Government of BC – Richmond Location
+    </a><br>
+    <b>Phone:</b> 1-888-664-3344 (toll-free) | 604-660-3511<br>
+    <b>Address:</b> 215-7577 Elmbridge Way, Richmond, BC V6X 4J3<br>
+    <b>Rating:</b> N/A<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Eligibility:</b></u><br>
+      • Open to all individuals<br><br>
+
+      <u><b>Services Provided:</b></u><br>
+      • Parenting arrangements<br>
+      • Guardianship<br>
+      • Child and spousal support<br>
+      • Contact with a child<br>
+      • Property division concerning companion animals<br><br>
+
+      <u><b>Additional Support:</b></u><br>
+      • Court forms and processes assistance<br>
+      • Referrals to community resources and agencies<br>
+      • Family Justice Counsellors: Accredited mediators providing services virtually via telephone and video conferencing<br><br>
+
+      <u><b>Access:</b></u><br>
+      • By appointment only; no drop-ins permitted<br><br>
+
+      <u><b>Hours:</b></u><br>
+      • Virtual services: Monday–Friday, 8:30 AM–4:30 PM<br>
+
+    </details>
+  `
+},
+  // LAWYERS 10
+   {name: "Family Justice Centres – Surrey",
+  category: "LegalAssistance",
+  lat: 49.1067,
+  lng: -122.8251,
+  description: `
+    <b>Website:</b>
+    <a href="https://www2.gov.bc.ca/gov/content/life-events/divorce/family-justice/who-can-help/family-justice-services-division/family-justice-centres/locations/surrey-justice-access-centre" target="_blank" rel="noopener noreferrer">
+      Government of BC – Surrey Justice Access Centre
+    </a><br>
+    <b>Phone:</b> 1-888-664-3344 (toll-free) | 604-501-3100 | 604-502-8282<br>
+    <b>Address:</b> 14340 57th Ave, Surrey, BC V3X 1B1<br>
+    <b>Rating:</b> N/A<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Eligibility:</b></u><br>
+      • Open to all individuals<br><br>
+
+      <u><b>Services Provided:</b></u><br>
+      • Parenting arrangements<br>
+      • Guardianship<br>
+      • Child and spousal support<br>
+      • Contact with a child<br>
+      • Property division concerning companion animals<br><br>
+
+      <u><b>Additional Support:</b></u><br>
+      • Court forms and processes assistance<br>
+      • Referrals to community resources and agencies<br>
+      • Family Justice Counsellors: Accredited mediators providing services virtually via telephone and video conferencing<br><br>
+
+      <u><b>Access:</b></u><br>
+      • By appointment only; no drop-ins permitted<br><br>
+
+      <u><b>Hours:</b></u><br>
+      • In-person & Virtual services: Monday–Friday, 8:00 AM–5:30 PM<br>
+      • Self-Help Resource Room: 8:30 AM–4:30 PM<br>
+
+    </details>
+  `
+},
+  // LAWYERS 11
+    {name: "Family Justice Centres – Vancouver (Commercial Drive)",
+  category: "LegalAssistance",
+  lat: 49.2707,
+  lng: -123.0701,
+  description: `
+    <b>Website:</b>
+    <a href="https://www2.gov.bc.ca/gov/content/life-events/divorce/family-justice/who-can-help/family-justice-services-division/family-justice-centres/locations/vancouver-family-justice-centre" target="_blank" rel="noopener noreferrer">
+      Government of BC – Vancouver Family Justice Centre
+    </a><br>
+    <b>Phone:</b> 1-888-664-3344 (toll-free) | 604-660-6828<br>
+    <b>Address:</b> 203-1651 Commercial Dr, Vancouver, BC V5L 3Y3<br>
+    <b>Rating:</b> N/A<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Eligibility:</b></u><br>
+      • Open to all individuals<br><br>
+
+      <u><b>Services Provided:</b></u><br>
+      • Parenting arrangements<br>
+      • Guardianship<br>
+      • Child and spousal support<br>
+      • Contact with a child<br>
+      • Property division concerning companion animals<br><br>
+
+      <u><b>Additional Support:</b></u><br>
+      • Court forms and processes assistance<br>
+      • Referrals to community resources and agencies<br>
+      • Family Justice Counsellors: Accredited mediators providing services virtually via telephone and video conferencing<br><br>
+
+      <u><b>Access:</b></u><br>
+      • By appointment only; no drop-ins permitted<br><br>
+
+      <u><b>Hours:</b></u><br>
+      • Monday–Thursday: 8:30 AM–5:45 PM<br>
+      • Friday: 8:30 AM–4:30 PM<br>
+
+    </details>
+  `
+},
+  // LAWYERS 12
+    {name: "Family Justice Centres – Vancouver (Robson Square)",
+  category: "LegalAssistance",
+  lat: 49.2824,
+  lng: -123.1219,
+  description: `
+    <b>Website:</b>
+    <a href="https://www2.gov.bc.ca/gov/content/life-events/divorce/family-justice/who-can-help/family-justice-services-division/family-justice-centres/locations/vancouver-justice-access-centre" target="_blank" rel="noopener noreferrer">
+      Government of BC – Vancouver Justice Access Centre
+    </a><br>
+    <b>Phone:</b> 1-888-664-3344 (toll-free)<br>
+    <b>Address:</b> Robson Square, Vancouver, BC<br>
+    <b>Rating:</b> N/A<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Eligibility:</b></u><br>
+      • Open to all individuals<br><br>
+
+      <u><b>Services Provided:</b></u><br>
+      • Parenting arrangements<br>
+      • Guardianship<br>
+      • Child and spousal support<br>
+      • Contact with a child<br>
+      • Property division concerning companion animals<br><br>
+
+      <u><b>Additional Support:</b></u><br>
+      • Court forms and processes assistance<br>
+      • Referrals to community resources and agencies<br>
+      • Family Justice Counsellors: Accredited mediators providing services virtually via telephone and video conferencing<br><br>
+
+      <u><b>Access:</b></u><br>
+      • By appointment only; no drop-ins permitted<br>
+
+    </details>
+  `
+},
+
+
+// ACCOUNTANT 01
+  { name: "BCIT Tax Clinic",
+  category: "Accountants",
+  lat: 49.2492,
+  lng: -123.0011,
+  description: `
+
+    <b>Website:</b>
+    <a href="https://bcitaa.ca/tax-clinic" target="_blank" rel="noopener noreferrer">
+      bcitaa.ca/tax-clinic
+    </a><br>
+
+    <b>Email:</b> taxclinic@bcitaa.com<br>
+    <b>Address:</b> 3700 Willingdon Avenue, Burnaby, BC V5G 3H2<br>
+    <b>Rating:</b> 4.0 ★<br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Services:</b></u><br>
+      Free tax preparation and filing.<br>
+      Done by current BCIT accounting students under supervision.<br><br>
+
+      <u><b>Eligibility:</b></u><br>
+      Must have a modest income and a simple tax situation.<br><br>
+
+      <b>Not eligible if you have:</b><br>
+      • Income from self-employment or business<br>
+      • Foreign property<br>
+      • Bankruptcy<br>
+      • Capital gains or losses<br>
+      • Rental income<br><br>
+
+      <u><b>Important:</b></u><br>
+      The clinic only runs for a few days each year.<br>
+      You must book in advance through the website.<br>
+
+    </details>
+  `
+},
+// ACCOUNTANT 02
+{  name: "MOSAIC Tax Clinics",
+  category: "Accountants",
+  lat: 49.2341,
+  lng: -123.0240,
+  description: `
+
+    <b>Website:</b>
+    <a href="https://mosaicbc.org" target="_blank" rel="noopener noreferrer">
+      mosaicbc.org
+    </a><br>
+
+    <b>Address:</b> 5575 Boundary Rd, Vancouver, BC V5R 0E3<br>
+    <b>Rating:</b> 4.5 ★<br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Services:</b></u><br>
+      Free tax filing for eligible clients.<br>
+      Clinics staffed by trained volunteers.<br><br>
+
+      <u><b>Eligibility:</b></u><br>
+      Designed for newcomers to Canada, including:<br>
+      • Permanent Residents<br>
+      • Protected Persons (refugees)<br>
+      • CUAET (Canada-Ukraine Authorization for Emergency Travel) holders<br>
+      Must meet low-income guidelines based on family size and income.<br><br>
+
+      <b>Not eligible if you have:</b><br>
+      • Business or rental income<br>
+      • Capital gains or losses<br>
+      • Bankruptcy<br>
+      • Self-employment with expenses<br>
+      • Filing taxes for a deceased person<br><br>
+
+      <u><b>Important:</b></u><br>
+      The clinic runs for about one month each year.<br>
+      Advance registration is required through the website.<br>
+
+    </details>
+  `
+},
+// ACCOUNTANT 03
+{ name: "Disability Alliance BC — Tax AID Program",
+  category: "Accountants",
+  lat: 49.2885,
+  lng: -123.1310,
+  description: `
+
+    <b>Website:</b>
+    <a href="https://disabilityalliancebc.org" target="_blank" rel="noopener noreferrer">
+      disabilityalliancebc.org
+    </a><br>
+
+    <b>Phone:</b> (604) 872-1278<br>
+    <b>Address:</b> 1450–605 Robson Street, Vancouver, BC V6B 5J3<br>
+    <b>Rating:</b> 3.8 ★<br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Services:</b></u><br>
+      • Disability Tax Credit assistance<br>
+      • Tax filing help for low-income persons with disabilities<br>
+      • RDSP (Registered Disability Savings Plan) guidance<br>
+      • Benefit navigation<br><br>
+
+      <u><b>Eligibility:</b></u><br>
+      • Low-income individuals with disabilities<br><br>
+
+      <u><b>Important:</b></u><br>
+      • Tax support may be seasonal or by appointment<br>
+      • Confirm scheduling via phone or website<br>
+
+    </details>
+  `
+},
+// ACCOUNTANT 04
+{  name: "Seniors First BC",
+  category: "Accountants",
+  lat: 49.2888,
+  lng: -123.1264,
+  description: `
+
+    <b>Website:</b>
+    <a href="https://seniorsfirstbc.ca" target="_blank" rel="noopener noreferrer">
+      seniorsfirstbc.ca
+    </a><br>
+
+    <b>Phone:</b> (604) 437-1940<br>
+    <b>Address:</b> 310–1281 West Georgia Street, Vancouver, BC<br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Services:</b></u><br>
+      • Income and benefits navigation (OAS, CPP, GIS)<br>
+      • Referrals for tax filing and government forms<br>
+      • Support for seniors facing financial or legal barriers<br><br>
+
+      <u><b>Eligibility:</b></u><br>
+      • Seniors aged 55+<br><br>
+
+      <u><b>Important:</b></u><br>
+      • Tax filing support is referral-based, not a full clinic service<br>
+      • Appointments required<br>
+
+    </details>
+  `
+},
+// ACCOUNTANT 05
+{  name: "North Shore Community Resources Society",
+  category: "Accountants",
+  lat: 49.3221,
+  lng: -123.1003,
+  description: `
+
+    <b>Website:</b>
+    <a href="https://nscr.ca" target="_blank" rel="noopener noreferrer">
+      nscr.ca
+    </a><br>
+
+    <b>Phone:</b> (604) 985-7138<br>
+    <b>Address:</b> 201–935 Marine Drive, North Vancouver, BC V7P 1S3<br>
+    <b>Rating:</b> 4.2/5<br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Services:</b></u><br>
+      • Seasonal free income tax clinics (CVITP)<br>
+      • Assistance with government benefits<br>
+      • Financial literacy support<br><br>
+
+      <u><b>Eligibility:</b></u><br>
+      • Low-income North Shore residents<br><br>
+
+      <u><b>Important:</b></u><br>
+      • Tax clinic location may differ from the main office<br>
+      • Appointment recommended<br>
+
+    </details>
+  `
+},
+// ACCOUNTANT 06
+{ name: "Family Services of Greater Vancouver",
+  category: "Accountants",
+  lat: 49.2627,
+  lng: -123.0708,
+  description: `
+
+    <b>Website:</b>
+    <a href="https://fsgv.ca" target="_blank" rel="noopener noreferrer">
+      fsgv.ca
+    </a><br>
+
+    <b>Phone:</b> (604) 713-4951<br>
+    <b>Address:</b> 1638 East Broadway, Vancouver, BC V5N 1W1<br>
+    <b>Rating:</b> 3.5 ★<br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Services:</b></u><br>
+      • Community tax clinics (seasonal)<br>
+      • Benefit navigation and income support<br>
+      • Financial literacy workshops<br><br>
+
+      <u><b>Eligibility:</b></u><br>
+      • Low-income families and individuals<br><br>
+
+      <u><b>Important:</b></u><br>
+      • Clinics are seasonal and locations may vary<br>
+      • Advance booking recommended<br>
+
+    </details>
+  `
+},
+// ACCOUNTANT 07
+{name: "Downtown Eastside Women’s Centre",
+category: "Accountants",
+lat: 49.2483,
+lng: -123.1103,
+description: `
+  <b>Website:</b>
+  <a href="https://dewc.ca" target="_blank" rel="noopener noreferrer">
+    https://dewc.ca
+  </a><br>
+  <b>Phone:</b> (604) 681-8480<br>
+  <b>Address:</b> 302 Columbia Street, Vancouver, BC V6A 1K9<br>
+  <b>Rating:</b> 4.2 ★<br><br>
+
+  <details>
+    <summary>More info</summary><br>
+
+    <u><b>Services:</b></u><br>
+    • Free seasonal tax clinics<br>
+    • Assistance accessing government benefits<br>
+    • Support for low-income women<br><br>
+
+    <u><b>Eligibility:</b></u><br>
+    • Low-income women and gender-diverse individuals<br><br>
+
+    <u><b>Important:</b></u><br>
+    • Tax clinic locations may differ from main office<br>
+    • Seasonal: March–April<br>
+
+  </details>
+`},
+//ACCOUNTANT 08
+{name: "Sources Community Resources Society – Free Tax Clinics",
+category: "Accountants",
+lat: 49.0185,
+lng: -122.7884,
+description: `
+  <b>Website:</b>
+  <a href="https://www.sourcesbc.ca/our-services/volunteer-services-income-tax-clinic" target="_blank" rel="noopener noreferrer">
+    https://www.sourcesbc.ca/our-services/volunteer-services-income-tax-clinic
+  </a><br>
+  <b>Phone:</b> 604-542-4357<br>
+  <b>Address:</b> 882 Maple Street, White Rock, BC V4B 4M2<br>
+  <b>Rating:</b> 4.4 ★<br><br>
+
+  <details>
+    <summary>More info</summary><br>
+
+    <u><b>Services:</b></u><br>
+    • Free income tax filing<br>
+    • Government benefits assistance<br>
+    • Financial literacy support<br><br>
+
+    <u><b>Eligibility:</b></u><br>
+    • Low-income Surrey and White Rock residents<br><br>
+
+    <u><b>How to Access:</b></u><br>
+    • Online registration during tax season<br>
+    • Appointment required<br>
+
+  </details>
+`},
+// ACCOUNTANT 09
+{name: "Langley Community Services Society – Income Tax Program",
+category: "Accountants",
+lat: 49.0997,
+lng: -122.6498,
+description: `
+  <b>Website:</b>
+  <a href="https://lcss.ca" target="_blank" rel="noopener noreferrer">
+    https://lcss.ca
+  </a><br>
+  <b>Phone:</b> 604-534-7921<br>
+  <b>Address:</b> 5339 207 Street, Langley, BC V3A 2E6<br>
+  <b>Rating:</b> 3.8 ★<br><br>
+
+  <details>
+    <summary>More info</summary><br>
+
+    <u><b>Services:</b></u><br>
+    • Free tax filing (CVITP)<br>
+    • Benefits application assistance<br>
+    • Financial guidance<br><br>
+
+    <u><b>Eligibility:</b></u><br>
+    • Low-income Langley residents<br>
+    • Simple returns only<br><br>
+
+    <u><b>How to Access:</b></u><br>
+    • Call during tax season to book appointment<br>
+
+  </details>
+`},
+//ACCOUNTANT 10
+{name: "Ridge Meadows Senior Society – Tax Clinic",
+category: "Accountants",
+lat: 49.2238,
+lng: -122.6001,
+description: `
+  <b>Ridge Meadows Senior Society – Tax Clinic</b><br>
+  <b>Website:</b>
+  <a href="https://rmssseniors.org/tax-clinic" target="_blank" rel="noopener noreferrer">
+    https://rmssseniors.org/tax-clinic
+  </a><br>
+  <b>Phone:</b> 604-467-4993<br>
+  <b>Address:</b> 12150 224 St, Maple Ridge, BC V2X 3N8<br>
+  <b>Rating:</b> 4.8 ★<br><br>
+
+  <details>
+    <summary>More info</summary><br>
+
+    <u><b>Services:</b></u><br>
+    • Free income tax filing<br>
+    • Benefits review<br>
+    • Financial support navigation<br><br>
+
+    <u><b>Eligibility:</b></u><br>
+    • Senior residents<br>
+    • Simple returns only<br><br>
+
+    <u><b>How to Access:</b></u><br>
+    • Appointment booking during tax season<br>
+
+  </details>
+`},
+//ACCOUNTANT 11
+{name: "Seniors Services Society of BC – Income Tax Clinics",
+category: "Accountants",
+lat: 49.2029,
+lng: -122.9117,
+description: `
+  <b>Seniors Services Society of BC – Income Tax Clinics</b><br>
+  <b>Website:</b>
+  <a href="https://seniorsservicessociety.ca" target="_blank" rel="noopener noreferrer">
+    https://seniorsservicessociety.ca
+  </a><br>
+  <b>Phone:</b> 604-520-6621<br>
+  <b>Address:</b> 750 Carnarvon Street, New Westminster, BC V3M 1E6<br>
+  <b>Rating:</b> 4.1 ★<br><br>
+
+  <details>
+    <summary>More info</summary><br>
+
+    <u><b>Services:</b></u><br>
+    • Free tax filing<br>
+    • Senior benefit navigation<br>
+    • Government form assistance<br><br>
+
+    <u><b>Eligibility:</b></u><br>
+    • Low-income seniors<br>
+    • Simple tax returns<br><br>
+
+    <u><b>How to Access:</b></u><br>
+    • Call to book appointment during tax season<br>
+
+  </details>
+`},
+//ACCOUNTANT 12
+{name: "Archway Community Services – Income Tax Program",
+category: "Accountants",
+lat: 49.0463,
+lng: -122.2895,
+description: `
+  <b>Website:</b>
+  <a href="https://archway.ca" target="_blank" rel="noopener noreferrer">
+    https://archway.ca
+  </a><br>
+  <b>Phone:</b> 604-859-7681<br>
+  <b>Address:</b> 2420 Montrose Ave, Abbotsford, BC V2S 1X4<br>
+  <b>Rating:</b> 4.3 ★<br><br>
+
+  <details>
+    <summary>More info</summary><br>
+
+    <u><b>Services:</b></u><br>
+    • Free tax filing<br>
+    • Benefit assistance<br>
+    • Financial literacy support<br><br>
+
+    <u><b>Eligibility:</b></u><br>
+    • Abbotsford Seniors<br><br>
+
+    <u><b>How to Access:</b></u><br>
+    • Online or phone registration during tax season<br>
+
+  </details>
+`},
+//ACCOUNTANT 13
+{name: "Mission Community Services Society – Tax Clinic",
+category: "Accountants",
+lat: 49.1363,
+lng: -122.3053,
+description: `
+  <b>Website:</b>
+  <a href="https://old.missioncommunityservices.com/programs/other-programs/community-funded-programs" target="_blank" rel="noopener noreferrer">
+    missioncommunityservices.com
+  </a><br>
+  <b>Phone:</b> 604-826-3634<br>
+  <b>Address:</b> 33179 2nd Avenue, Mission, BC V2V 1J9<br>
+  <b>Rating:</b> 4.4 ★<br><br>
+
+  <details>
+    <summary>More info</summary><br>
+
+    <u><b>Services:</b></u><br>
+    • Free income tax filing<br>
+    • Benefits application assistance<br><br>
+
+    <u><b>Eligibility:</b></u><br>
+    • Low-income Mission residents<br>
+
+  </details>
+`},
+
+
+// CHILD CARE 01
+{  name: "Westcoast Child Care Resource Centre",
+  category: "ChildCare",
+  lat: 49.2618,
+  lng: -123.0481,
+  description: `
+    <b>Website:</b>
+    <a href="http://www.wstcoast.org" target="_blank" rel="noopener noreferrer">
+      wstcoast.org
+    </a><br>
+    <b>Phone:</b> (604) 709‑5661<br>
+    <b>Address:</b> 2772 E Broadway, Vancouver, BC V5M 1Y8<br>
+    <b>Rating:</b> 4.8/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Services:</b></u><br>
+      • Childcare resource and referral centre<br>
+      • Helps families find licensed childcare providers across Greater Vancouver<br>
+      • Provides childcare information, workshops, and support<br>
+
+    </details>
+  `
+},
+// CHILD CARE 02
+{  name: "Kiwassa Neighbourhood House",
+  category: "ChildCare",
+  lat: 49.2866,
+  lng: -123.0556,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.kiwassa.ca/our-services/early-years-and-family-programs" target="_blank" rel="noopener noreferrer">
+      kiwassa.ca
+    </a><br>
+    <b>Phone:</b> (604) 254-5401<br>
+    <b>Address:</b> 2425 Oxford St, Vancouver, BC V5K 1M7<br>
+    <b>Rating:</b> 4.5/5<br>
+    <b>Ages Served:</b> 0–6 and their families<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Services:</b></u><br>
+      • Family support services<br>
+
+    </details>
+  `
+},
+// CHILD CARE 03
+{  name: "Frog Hollow Neighbourhood House",
+  category: "ChildCare",
+  lat: 49.2862,
+  lng: -123.0556,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.froghollow.bc.ca/childcare-programj" target="_blank" rel="noopener noreferrer">
+      froghollow.bc.ca
+    </a><br>
+    <b>Phone:</b> (604) 251-1225<br>
+    <b>Address:</b> 2131 Renfrew St, Vancouver, BC V5M 4M5<br>
+    <b>Rating:</b> 4.5/5<br>
+    <b>Ages Served:</b> 0–5 years + school age<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Services:</b></u><br>
+      • Infant toddler care<br>
+      • 3–5 group childcare<br>
+      • Before and after school care<br>
+
+    </details>
+  `
+},
+// CHILD CARE 04
+{  name: "Burnaby Family Life",
+  category: "ChildCare",
+  lat: 49.2168,
+  lng: -122.9851,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.burnabyfamilylife.org/" target="_blank" rel="noopener noreferrer">
+      burnabyfamilylife.org
+    </a><br>
+    <b>Phone:</b> (604) 257-4465<br>
+    <b>Address:</b> 5455 Rumble St, Burnaby, BC V5J 2B7<br>
+    <b>Rating:</b> 5.0/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Services:</b></u><br>
+      • Licensed preschool<br>
+      • Before and after school programs<br>
+
+    </details>
+  `
+},
+// CHILD CARE 05
+{  name: "Lower Mainland Purpose Society For Youth and Families",
+  category: "ChildCare",
+  lat: 49.2026,
+  lng: -122.9112,
+  description: `
+    <b>Website:</b>
+    <a href="https://purposesociety.org" target="_blank" rel="noopener noreferrer">
+      purposesociety.org
+    </a><br>
+    <b>Phone:</b> (604) 526-2522<br>
+    <b>Address:</b> 40 Begbie St, New Westminster, BC V3M 3L9<br>
+    <b>Rating:</b> 4.4/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Services:</b></u><br>
+      • Family and youth services<br>
+
+    </details>
+  `
+},
+// CHILD CARE 06
+{  name: "Richmond Family Place Society",
+  category: "ChildCare",
+  lat: 49.1507,
+  lng: -123.1191,
+  description: `
+    <b>Website:</b>
+    <a href="https://richmondfamilyplace.ca" target="_blank" rel="noopener noreferrer">
+      richmondfamilyplace.ca
+    </a><br>
+    <b>Phone:</b> (604) 278-4336<br>
+    <b>Email:</b> info@richmondfamilyplace.ca<br>
+    <b>Address:</b> 8660 Ash St, Richmond, BC V7A 1X9<br>
+    <b>Rating:</b> 4.9/5<br>
+    <b>Ages Served:</b> 0–6 years<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Services:</b></u><br>
+      • Licensed childcare programs<br>
+      • Parent participation options<br>
+      • Family resource programs<br>
+
+    </details>
+  `
+},
+// CHILD CARE 07
+{  name: "Options Community Services",
+  category: "ChildCare",
+  lat: 49.1509,
+  lng: -122.8462,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.options.bc.ca/get-support/for-my-family" target="_blank" rel="noopener noreferrer">
+      options.bc.ca
+    </a><br>
+    <b>Phone:</b> (604) 572-8032<br>
+    <b>Address:</b> 13583 81 Ave, Surrey, BC V3W 3V8<br>
+    <b>Rating:</b> 3.8/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Services:</b></u><br>
+      • Licensed group childcare<br>
+      • Early years programs<br>
+
+    </details>
+  `
+},
+// CHILD CARE 08
+{  name: "Deltassist Family and Community Services",
+  category: "ChildCare",
+  lat: 49.1688,
+  lng: -122.8908,
+  description: `
+    <b>Website:</b>
+    <a href="https://deltassist.com" target="_blank" rel="noopener noreferrer">
+      deltassist.com
+    </a><br>
+    <b>Phone:</b> (604) 594-3455<br>
+    <b>Address:</b> 9097 120 St, Delta, BC V4C 6R7<br>
+    <b>Rating:</b> 4.4/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Services:</b></u><br>
+      • Licensed preschool programs<br>
+      • Family support services<br>
+
+    </details>
+  `
+},
+// CHILD CARE 09
+{ name: "Share Family & Community Services",
+  category: "ChildCare",
+  lat: 49.2775,
+  lng: -122.8535,
+  description: `
+    <b>Website:</b>
+    <a href="https://sharesociety.ca" target="_blank" rel="noopener noreferrer">
+      sharesociety.ca
+    </a><br>
+    <b>Phone:</b> (604) 540-9161<br>
+    <b>Address:</b> 2615 Clarke St, Port Moody, BC V3H 1Z4<br>
+    <b>Rating:</b> 4.6/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Services:</b></u><br>
+      • Licensed childcare<br>
+      • Family resource programs<br>
+
+    </details>
+  `
+},
+// CHILD CARE 10
+{  name: "Langley Community Services Society Hub",
+  category: "ChildCare",
+  lat: 49.0991,
+  lng: -122.6497,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.lcss.ca" target="_blank" rel="noopener noreferrer">
+      lcss.ca
+    </a><br>
+    <b>Phone:</b> (604) 534-7921<br>
+    <b>Address:</b> 5339 207 St, Langley, BC V3A 2E6<br>
+    <b>Rating:</b> 3.8/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Services:</b></u><br>
+      • Licensed childcare<br>
+      • Early childhood programs<br>
+
+    </details>
+  `
+},
+// CHILD CARE 11
+{  name: "Archway Community Services",
+  category: "ChildCare",
+  lat: 49.0461,
+  lng: -122.2897,
+  description: `
+    <b>Website:</b>
+    <a href="https://archway.ca/programs/#children" target="_blank" rel="noopener noreferrer">
+      archway.ca
+    </a><br>
+    <b>Phone:</b> (604) 859-7681<br>
+    <b>Address:</b> 2420 Montrose Ave, Abbotsford, BC V2S 1X4<br>
+    <b>Rating:</b> 4.3/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Services:</b></u><br>
+      • Licensed childcare<br>
+      • Family Support Programs<br>
+
+    </details>
+  `
+},
+// CHILD CARE 12
+{  name: "North Shore Neighbourhood House",
+  category: "ChildCare",
+  lat: 49.3108,
+  lng: -123.0742,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.nsnh.bc.ca" target="_blank" rel="noopener noreferrer">
+      nsnh.bc.ca
+    </a><br>
+    <b>Phone:</b> (604) 987-8138<br>
+    <b>Address:</b> 225 E 2nd St, North Vancouver, BC V7L 0H5<br>
+    <b>Rating:</b> 5.0/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Services:</b></u><br>
+      • Licensed childcare (Includes $10-a-day childcare centres)<br>
+      • Early years programs<br>
+
+    </details>
+  `
+},
+
+
+// LOW COST GOODS 01
+{  name: "Ridge Meadows Hospice Society Thrift Store",
+  category: "LowCostGoods",
+  lat: 49.2211,
+  lng: -122.6018,
+  description: `
+    <b>Website:</b>
+    <a href="https://ridgemeadowshospicesociety.com/support-us-2/thrift-store" target="_blank" rel="noopener noreferrer">
+      ridgemeadowshospicesociety.com
+    </a><br>
+    <b>Phone:</b> 604-463-7711<br>
+    <b>Address:</b> 12011 224 St, Maple Ridge, BC V2X 6B7<br>
+    <b>Rating:</b> 4.4/5<br>
+  `
+},
+// LOW COST GOODS 02
+{  name: "Peace Arch Hospital Auxiliary Superfluity Thrift Store",
+  category: "LowCostGoods",
+  lat: 49.0251,
+  lng: -122.8020,
+  description: `
+    <b>Website:</b>
+    <a href="https://paha.ca" target="_blank" rel="noopener noreferrer">
+      paha.ca
+    </a><br>
+    <b>Phone:</b> 604-536-7744<br>
+    <b>Address:</b> 15163 Prospect Ave, White Rock, BC V4B 2B8<br>
+    <b>Rating:</b> 4.4/5<br>
+  `
+},
+// LOW COST GOODS 03
+{  name: "Mission Community Services Thrift Store",
+  category: "LowCostGoods",
+  lat: 49.1341,
+  lng: -122.3221,
+  description: `
+    <b>Website:</b>
+    <a href="https://mccthrift.com/locations/mission-mcc-thrift-shop" target="_blank" rel="noopener noreferrer">
+      mccthrift.com
+    </a><br>
+    <b>Phone:</b> 604-826-1515<br>
+    <b>Address:</b> 32608 Fraser Crescent, Mission, BC V2V 1E1<br>
+    <b>Rating:</b> 4.3/5<br>
+  `
+},
+// LOW COST GOODS 04
+{  name: "Thrifty Boutique",
+  category: "LowCostGoods",
+  lat: 49.1460,
+  lng: -121.9781,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.chilliwackhospice.org/thriftyboutique" target="_blank" rel="noopener noreferrer">
+      chilliwackhospice.org
+    </a><br>
+    <b>Phone:</b> 604-846-2226<br>
+    <b>Address:</b> 7955 Evans Rd #101, Chilliwack, BC V2R 5R7<br>
+    <b>Rating:</b> 4.4/5<br>
+  `
+},
+// LOW COST GOODS 05
+{  name: "SPCA Thrift Store – Vancouver",
+  category: "LowCostGoods",
+  lat: 49.2371,
+  lng: -123.0658,
+  description: `
+    <b>Website:</b>
+    <a href="https://spca.bc.ca/thrift-stores" target="_blank" rel="noopener noreferrer">
+      spca.bc.ca
+    </a><br>
+    <b>Phone:</b> 604-321-8144<br>
+    <b>Address:</b> 5239 Victoria Dr, Vancouver, BC V5P 3V4<br>
+    <b>Rating:</b> 4.0/5<br>
+  `
+},
+// LOW COST GOODS 06
+{  name: "Burnaby Hospice Society Thrift Store",
+  category: "LowCostGoods",
+  lat: 49.2186,
+  lng: -122.9621,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.burnabyhospice.org" target="_blank" rel="noopener noreferrer">
+      burnabyhospice.org
+    </a><br>
+    <b>Phone:</b> 604-520-5082<br>
+    <b>Address:</b> 6843 Kingsway, Burnaby, BC V5E 1E4<br>
+    <b>Rating:</b> 4.0/5<br>
+  `
+},
+// LOW COST GOODS 07
+{  name: "Richmond Hospital Auxiliary Thrift Shop",
+  category: "LowCostGoods",
+  lat: 49.1268,
+  lng: -123.1840,
+  description: `
+    <b>Website:</b>
+    <a href="https://rhhaux.ca" target="_blank" rel="noopener noreferrer">
+      rhhaux.ca
+    </a><br>
+    <b>Phone:</b> 604-271-1551<br>
+    <b>Address:</b> 3731 Chatham Street, Richmond, BC V7E 2Z1<br>
+    <b>Rating:</b> 4.5/5<br>
+  `
+},
+// LOW COST GOODS 08
+{  name: "Surrey Hospice Society Thrift Store",
+  category: "LowCostGoods",
+  lat: 49.0452,
+  lng: -122.7915,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.peacearchhospice.org/thrift-store" target="_blank" rel="noopener noreferrer">
+      peacearchhospice.org
+    </a><br>
+    <b>Phone:</b> (604) 538-7600<br>
+    <b>Address:</b> 15562 24 Ave, Surrey, BC V4A 2J5<br>
+    <b>Rating:</b> 4.2/5<br>
+  `
+},
+// LOW COST GOODS 09
+{  name: "The Salvation Army Thrift Store",
+  category: "LowCostGoods",
+  lat: 49.1099,
+  lng: -122.6779,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.ridgemeadowshospicesociety.com/support-us-2/thrift-store" target="_blank" rel="noopener noreferrer">
+      ridgemeadowshospicesociety.com
+    </a><br>
+    <b>Phone:</b> (778) 312-1162<br>
+    <b>Address:</b> 19700 Langley Bypass Unit 301, Langley, BC V3A 7B1<br>
+    <b>Rating:</b> 4.3/5<br>
+  `
+},
+// LOW COST GOODS 10
+{  name: "Delta Hospital Auxiliary Thrift Shop",
+  category: "LowCostGoods",
+  lat: 49.0906,
+  lng: -123.0848,
+  description: `
+    <b>Website:</b>
+    <a href="https://deltahospitalauxiliary.org" target="_blank" rel="noopener noreferrer">
+      deltahospitalauxiliary.org
+    </a><br>
+    <b>Phone:</b> (604) 946-1455<br>
+    <b>Address:</b> 4816 Delta St, Delta, BC V4K 2T7<br>
+    <b>Rating:</b> 4.3/5<br>
+  `
+},
+// LOW COST GOODS 11
+{  name: "Crossroads Hospice Society Thrift Store",
+  category: "LowCostGoods",
+  lat: 49.2562,
+  lng: -122.7409,
+  description: `
+    <b>Website:</b>
+    <a href="https://stores.savers.com/bc/portcoquitlam/valuevillage-thrift-store-2163.html" target="_blank" rel="noopener noreferrer">
+      stores.savers.com
+    </a><br>
+    <b>Phone:</b> (778) 262-0794<br>
+    <b>Address:</b> 985 Nicola Ave #105, Port Coquitlam, BC V3B 8B2<br>
+    <b>Rating:</b> 3.7/5<br>
+  `
+},
+// LOW COST GOODS 12
+{  name: "MCC Centre Thrift Shop",
+  category: "LowCostGoods",
+  lat: 49.0475,
+  lng: -122.2852,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.mcccentre.ca/mcc-thrift" target="_blank" rel="noopener noreferrer">
+      mcccentre.ca
+    </a><br>
+    <b>Phone:</b> (604) 854-2062<br>
+    <b>Address:</b> 33933 Gladys Ave, Abbotsford, BC V2S 2E8<br>
+    <b>Rating:</b> 4.3/5<br>
+  `
+},
+
+
+// EDUCATION 01
+{  name: "South Hill Education Centre",
+  category: "Education",
+  lat: 49.2300,
+  lng: -123.0902,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.vsb.bc.ca/page/5240/adult-education" target="_blank" rel="noopener noreferrer">
+      vsb.bc.ca
+    </a><br>
+    <b>Phone:</b> (604) 713-5770<br>
+    <b>Address:</b> 6010 Fraser St, Vancouver, BC<br>
+    <b>Rating:</b> 3.8/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Overview:</b></u><br>
+      • Free/low-cost adult high school courses (Dogwood diploma)<br>
+      • Flexible schedules (day, evening, weekend)<br>
+      • Literacy, numeracy, and upgrading programs<br>
+      • Hybrid and self-paced options available (Vancouver School Board)<br>
+
+    </details>
+  `
+},
+// EDUCATION 02
+{  name: "Vancouver Community College",
+  category: "Education",
+  lat: 49.2633,
+  lng: -123.0809,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.vcc.ca" target="_blank" rel="noopener noreferrer">
+      vcc.ca
+    </a><br>
+    <b>Phone:</b> (604) 871-7000<br>
+    <b>Address:</b> 1155 E Broadway, Vancouver, BC<br>
+    <b>Rating:</b> ~4.0/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+
+      <u><b>Overview:</b></u><br>
+      • One of the most affordable colleges in Vancouver<br>
+      • Offers continuing studies + academic upgrading<br>
+      • Evening/weekend courses for working adults<br>
+      • Wide range: trades, business, tech, ESL (Vancouver Community College)<br>
+
+    </details>
+  `
+},
+// EDUCATION 03
+{  name: "Langara College Continuing Studies",
+  category: "Education",
+  lat: 49.2250,
+  lng: -123.1102,
+  description: `
+    <b>Website:</b>
+    <a href="https://langara.ca" target="_blank" rel="noopener noreferrer">
+      langara.ca
+    </a><br>
+    <b>Phone:</b> (604) 323-5322<br>
+    <b>Address:</b> 100 W 49th Ave, Vancouver, BC<br>
+    <b>Rating:</b> ~4.2/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Continuing studies and adult learning programs<br>
+      • Wide range of courses including professional development, arts, and technology<br>
+      • Flexible schedules for working adults<br>
+    </details>
+  `
+},
+// EDUCATION 04
+{  name: "Simon Fraser University Continuing Studies",
+  category: "Education",
+  lat: 49.2845,
+  lng: -123.1116,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.sfu.ca/continuing-studies" target="_blank" rel="noopener noreferrer">
+      sfu.ca/continuing-studies
+    </a><br>
+    <b>Phone:</b> (778) 782-8000<br>
+    <b>Address:</b> 515 W Hastings St, Vancouver, BC<br>
+    <b>Rating:</b> ~4.4/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Professional certificates and short courses<br>
+      • Part-time learning for career advancement<br>
+      • Wide range of subjects including business, tech, writing, and data<br>
+      • Downtown Vancouver location, transit accessible<br>
+    </details>
+  `
+},
+// EDUCATION 05
+{  name: "Cornerstone International Community College of Canada",
+  category: "Education",
+  lat: 49.2850,
+  lng: -123.1131,
+  description: `
+    <b>Website:</b>
+    <a href="https://ciccc.ca" target="_blank" rel="noopener noreferrer">
+      ciccc.ca
+    </a><br>
+    <b>Phone:</b> (604) 620-1111<br>
+    <b>Address:</b> 609 W Hastings St, Vancouver, BC<br>
+    <b>Rating:</b> ~4.7/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Career-focused diplomas in tech, business, and marketing<br>
+      • Relatively affordable tuition compared to universities<br>
+      • Flexible online and in-person learning options<br>
+      • Job-oriented programs with high placement focus<br>
+    </details>
+  `
+},
+// EDUCATION 06
+{  name: "Vancouver College of Counsellor Training",
+  category: "Education",
+  lat: 49.2724,
+  lng: -123.0957,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.vcct.ca" target="_blank" rel="noopener noreferrer">
+      vcct.ca
+    </a><br>
+    <b>Phone:</b> (604) 683-2442<br>
+    <b>Address:</b> 333 Terminal Ave #503, Vancouver, BC<br>
+    <b>Rating:</b> ~4.5/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Specialized training in counselling and psychology<br>
+      • Smaller, more affordable than universities<br>
+      • Diploma-based programs<br>
+      • Career-oriented mental health training<br>
+    </details>
+  `
+},
+// EDUCATION 07
+{  name: "Responsible Adult Course (Head Start Online School)",
+  category: "Education",
+  lat: 49.3283,
+  lng: -123.1550,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.headstartonlineschool.com" target="_blank" rel="noopener noreferrer">
+      headstartonlineschool.com
+    </a><br>
+    <b>Phone:</b> (604) 483-1387<br>
+    <b>Address:</b> 1425 Marine Dr #207, West Vancouver, BC<br>
+    <b>Rating:</b> 5.0/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Short certification programs (childcare, responsible adult)<br>
+      • Fully online and flexible<br>
+      • Low-cost, quick completion courses<br>
+      • Ideal for job entry requirements<br>
+    </details>
+  `
+},
+// EDUCATION 08
+{  name: "Vancouver School Board Adult Education",
+  category: "Education",
+  lat: 49.2300,
+  lng: -123.0902,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.vsb.bc.ca/adult-education" target="_blank" rel="noopener noreferrer">
+      vsb.bc.ca/adult-education
+    </a><br>
+    <b>Phone:</b> (604) 713-5770<br>
+    <b>Address:</b> 6010 Fraser St, Vancouver, BC<br>
+    <b>Rating:</b> ~4.0/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Tuition-free upgrading for many domestic students<br>
+      • ESL and basic education programs<br>
+      • Helps prepare for post-secondary<br>
+      • Multiple learning centres across Vancouver<br>
+    </details>
+  `
+},
+// EDUCATION 09
+{  name: "Douglas College Continuing Education",
+  category: "Education",
+  lat: 49.2037,
+  lng: -122.9128,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.douglascollege.ca" target="_blank" rel="noopener noreferrer">
+      douglascollege.ca
+    </a><br>
+    <b>Phone:</b> (604) 527-5400<br>
+    <b>Address:</b> 700 Royal Ave, New Westminster, BC<br>
+    <b>Rating:</b> ~4.1/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Affordable certificates and career training<br>
+      • Strong reputation for practical programs<br>
+      • Flexible part-time learning<br>
+      • Good pathway to university transfer<br>
+    </details>
+  `
+},
+// EDUCATION 10
+{  name: "Kwantlen Polytechnic University Continuing & Professional Studies",
+  category: "Education",
+  lat: 49.1332,
+  lng: -122.8719,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.kpu.ca" target="_blank" rel="noopener noreferrer">
+      kpu.ca
+    </a><br>
+    <b>Phone:</b> (604) 599-2100<br>
+    <b>Address:</b> 12666 72 Ave, Surrey, BC<br>
+    <b>Rating:</b> ~4.0/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Affordable public university programs<br>
+      • Certificates, diplomas, and upgrading<br>
+      • Strong trades and applied learning focus<br>
+      • Multiple campuses across Metro Vancouver<br>
+    </details>
+  `
+},
+// EDUCATION 11
+{  name: "MOSAIC Education & Settlement Programs",
+  category: "Education",
+  lat: 49.2336,
+  lng: -123.0239,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.mosaicbc.org" target="_blank" rel="noopener noreferrer">
+      mosaicbc.org
+    </a><br>
+    <b>Phone:</b> (604) 254-9626<br>
+    <b>Address:</b> 5575 Boundary Rd, Vancouver, BC<br>
+    <b>Rating:</b> ~4.3/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Free or low-cost programs for newcomers<br>
+      • ESL, employment training, and skills programs<br>
+      • Government-funded options available<br>
+      • Strong community support services<br>
+    </details>
+  `
+},
+// EDUCATION 12
+{  name: "YWCA Metro Vancouver Learning & Employment Programs",
+  category: "Education",
+  lat: 49.2855,
+  lng: -123.1178,
+  description: `
+    <b>Website:</b>
+    <a href="https://ywcavan.org" target="_blank" rel="noopener noreferrer">
+      ywcavan.org
+    </a><br>
+    <b>Phone:</b> (604) 895-5800<br>
+    <b>Address:</b> 535 Hornby St, Vancouver, BC<br>
+    <b>Rating:</b> ~4.4/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Low-cost or funded training programs<br>
+      • Focus on employment readiness and skills<br>
+      • Support for women, youth, and job seekers<br>
+      • Includes workshops, certifications, and career coaching<br>
+    </details>
+  `
+},
+
+
+// FOOD BANKS 01
+{  name: "Greater Vancouver Food Bank",
+  category: "FoodBanks",
+  lat: 49.2744,
+  lng: -123.0820,
+  description: `
+    <b>Website:</b>
+    <a href="https://foodbank.bc.ca" target="_blank" rel="noopener noreferrer">
+      foodbank.bc.ca
+    </a><br>
+    <b>Phone:</b> (604) 876-3601<br>
+    <b>Address:</b> 1150 Raymur Ave, Vancouver, BC<br>
+    <b>Rating:</b> ~4.5/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Largest food bank network in the region<br>
+      • Weekly food hampers + multiple distribution locations<br>
+      • Serves Vancouver, Burnaby, New Westminster, North Shore<br>
+      • Also offers produce, dairy, and non-perishables<br>
+    </details>
+  `
+},
+// FOOD BANKS 02
+{  name: "Greater Vancouver Food Bank – Vancouver Regional Distribution Hub",
+  category: "FoodBanks",
+  lat: 49.2627,
+  lng: -123.0288,
+  description: `
+    <b>Website:</b>
+    <a href="https://foodbank.bc.ca" target="_blank" rel="noopener noreferrer">
+      foodbank.bc.ca
+    </a><br>
+    <b>Phone:</b> (604) 876‑3601<br>
+    <b>Address:</b> 3454 Lougheed Hwy., Vancouver, BC V5M 3Y5<br>
+    <b>Rating:</b> ~4.4/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Major weekly distribution site for food hampers<br>
+      • Provides fresh and non‑perishable items to registered clients<br>
+      • Serves residents of Vancouver, Burnaby, North Shore & surrounding areas with scheduled pickup times<br>
+    </details>
+  `
+},
+// FOOD BANKS 03
+{  name: "Greater Vancouver Food Bank – Burnaby Warehouse & Office",
+  category: "FoodBanks",
+  lat: 49.2494,
+  lng: -122.9220,
+  description: `
+    <b>Website:</b>
+    <a href="https://foodbank.bc.ca" target="_blank" rel="noopener noreferrer">
+      foodbank.bc.ca
+    </a><br>
+    <b>Phone:</b> (604) 876‑3601<br>
+    <b>Address:</b> 8345 Winston Street, Burnaby, BC V5A 2H3<br>
+    <b>Rating:</b> ~2.3/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • longer wait times
+      • GVFB’s administrative headquarters & one of the distribution sites<br>
+      • Where many clients are registered and attend food pickup<br>
+      • Weekly hamper pickups available (schedule varies) and seasonal special distributions<br>
+      • Serves as main referral centre for other GVFB locations<br>
+    </details>
+  `
+},
+// FOOD BANKS 04
+{  name: "Vancouver East Community Food Hub (GVFB) — Thunderbird Community Centre",
+  category: "FoodBanks",
+  lat: 49.2639,
+  lng: -123.0313,
+  description: `
+    <b>Website:</b>
+    <a href="https://foodbank.bc.ca/find-food/locations/" target="_blank" rel="noopener noreferrer">
+      foodbank.bc.ca
+    </a><br>
+    <b>Phone:</b> (604) 876‑3601<br>
+    <b>Address:</b> 2311 Cassiar St, Vancouver, BC V5M 3X3<br>
+    <b>Rating:</b> ~4.4/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Weekly food distribution point in east Vancouver<br>
+      • Offers scheduled hamper pickup for registered clients<br>
+      • Family‑friendly community space; often includes volunteer support staff<br>
+      • More accessible for Vancouver residents who can’t easily reach main Burnaby hub<br>
+    </details>
+  `
+},
+// FOOD BANKS 05
+{  name: "Vancouver South Community Food Hub (GVFB) — Khalsa Diwan Society",
+  category: "FoodBanks",
+  lat: 49.2116,
+  lng: -123.0827,
+  description: `
+    <b>Website:</b>
+    <a href="https://foodbank.bc.ca/find-food/locations/" target="_blank" rel="noopener noreferrer">
+      foodbank.bc.ca
+    </a><br>
+    <b>Phone:</b> (604) 876‑3601<br>
+    <b>Address:</b> 8000 Ross St, Vancouver, BC V5X 4C6<br>
+    <b>Rating:</b> ~4.4/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Weekly distribution site on Vancouver’s south side<br>
+      • Community‑focused, often connected with local facilities<br>
+      • Offers food hampers on scheduled days — great option for nearby clients<br>
+      • Supports culturally diverse neighbourhood<br>
+    </details>
+  `
+},
+// FOOD BANKS 06
+{  name: "Vancouver Downtown Community Food Hub (GVFB) — Queen Elizabeth Theatre",
+  category: "FoodBanks",
+  lat: 49.2805,
+  lng: -123.1128,
+  description: `
+    <b>Website:</b>
+    <a href="https://foodbank.bc.ca/find-food/locations/" target="_blank" rel="noopener noreferrer">
+      foodbank.bc.ca
+    </a><br>
+    <b>Phone:</b> (604) 876‑3601<br>
+    <b>Address:</b> 630 Hamilton St, Vancouver, BC V6B 5N6<br>
+    <b>Rating:</b> ~4.5/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Central urban distribution location<br>
+      • Accessible by transit for individuals living downtown<br>
+      • Scheduled weekly pickup for registered GVFB clients<br>
+      • Often busy and highly supportive for clients with mobility challenges<br>
+    </details>
+  `
+},
+// FOOD BANKS 07
+{  name: "Vancouver West Community Food Hub (GVFB) — Jewish Community Centre",
+  category: "FoodBanks",
+  lat: 49.2334,
+  lng: -123.1267,
+  description: `
+    <b>Website:</b>
+    <a href="https://foodbank.bc.ca/find-food/locations/" target="_blank" rel="noopener noreferrer">
+      foodbank.bc.ca
+    </a><br>
+    <b>Phone:</b> (604) 876‑3601<br>
+    <b>Address:</b> 950 W 41st Ave, Vancouver, BC V5Z 2N7<br>
+    <b>Rating:</b> ~4.4/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Weekly site serving Vancouver westside clients<br>
+      • Hamper pickup includes fresh and staple foods<br>
+      • Hosted at a community centre, supportive environment<br>
+      • Accessible transit routes nearby<br>
+    </details>
+  `
+},
+// FOOD BANKS 08
+{  name: "Indigenous Community Food Hub (GVFB) — Vancouver Aboriginal Friendship Centre",
+  category: "FoodBanks",
+  lat: 49.2815,
+  lng: -123.0720,
+  description: `
+    <b>Website:</b>
+    <a href="https://foodbank.bc.ca/find-food/locations/" target="_blank" rel="noopener noreferrer">
+      foodbank.bc.ca
+    </a><br>
+    <b>Phone:</b> (604) 251‑4844<br>
+    <b>Address:</b> 1607 E Hastings St, Vancouver, BC V5L 1S7<br>
+    <b>Rating:</b> ~4.5/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Weekly distribution focused on Indigenous clients and inclusive services<br>
+      • Provides culturally relevant food support<br>
+      • Often includes access to additional Friendship Centre programs<br>
+      • Offers a welcoming and supportive space<br>
+    </details>
+  `
+},
+// FOOD BANKS 09
+{  name: "Quest Food Exchange",
+  category: "FoodBanks",
+  lat: 49.2810,
+  lng: -123.0985,
+  description: `
+    <b>Website:</b>
+    <a href="https://questoutreach.org" target="_blank" rel="noopener noreferrer">
+      questoutreach.org
+    </a><br>
+    <b>Phone:</b> (604) 682-6640<br>
+    <b>Address:</b> 240 E Hastings St, Vancouver, BC<br>
+    <b>Rating:</b> ~4.4/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Grocery store model (not a traditional food bank)<br>
+      • Offers food at very low cost (up to 50% off)<br>
+      • Requires referral or membership<br>
+      • Focus on dignity and choice<br>
+    </details>
+  `
+},
+// FOOD BANKS 10
+{  name: "Salvation Army Harbour Light",
+  category: "FoodBanks",
+  lat: 49.2824,
+  lng: -123.1012,
+  description: `
+    <b>Website:</b>
+    <a href="https://salvationarmy.ca" target="_blank" rel="noopener noreferrer">
+      salvationarmy.ca
+    </a><br>
+    <b>Phone:</b> (604) 646-6800<br>
+    <b>Address:</b> 119 E Cordova St, Vancouver, BC<br>
+    <b>Rating:</b> ~3.9/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Daily meals + emergency food support<br>
+      • Also provides shelter and addiction recovery services<br>
+      • Walk-in meal programs available<br>
+    </details>
+  `
+},
+// FOOD BANKS 11
+{  name: "Union Gospel Mission",
+  category: "FoodBanks",
+  lat: 49.2814,
+  lng: -123.0912,
+  description: `
+    <b>Website:</b>
+    <a href="https://ugm.ca" target="_blank" rel="noopener noreferrer">
+      ugm.ca
+    </a><br>
+    <b>Phone:</b> (604) 253-3323<br>
+    <b>Address:</b> 601 E Hastings St, Vancouver, BC<br>
+    <b>Rating:</b> ~4.6/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Free meals served daily<br>
+      • Food hampers and outreach programs<br>
+      • Also offers recovery and housing support<br>
+    </details>
+  `
+},
+// FOOD BANKS 12
+{  name: "Directions Youth Services Centre",
+  category: "FoodBanks",
+  lat: 49.2796,
+  lng: -123.1281,
+  description: `
+    <b>Website:</b>
+    <a href="https://directionsyouthservices.ca" target="_blank" rel="noopener noreferrer">
+      directionsyouthservices.ca
+    </a><br>
+    <b>Phone:</b> (604) 633-1472<br>
+    <b>Address:</b> 1138 Burrard St, Vancouver, BC<br>
+    <b>Rating:</b> ~4.3/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Food, snacks, and meals for youth (ages 13–24)<br>
+      • Drop-in centre with additional supports<br>
+      • Focus on vulnerable and homeless youth<br>
+    </details>
+  `
+},
+// FOOD BANKS 13
+{  name: "Muslim Food Bank & Community Services",
+  category: "FoodBanks",
+  lat: 49.2117,
+  lng: -122.8624,
+  description: `
+    <b>Website:</b>
+    <a href="https://muslimfoodbank.com" target="_blank" rel="noopener noreferrer">
+      muslimfoodbank.com
+    </a><br>
+    <b>Phone:</b> 1-866-248-3868<br>
+    <b>Address:</b> 12941 115A Ave #104, Surrey, BC<br>
+    <b>Rating:</b> ~4.7/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Food hampers + delivery services<br>
+      • Serves families, seniors, refugees<br>
+      • Also offers mental health and case support<br>
+      • Multiple Lower Mainland locations<br>
+    </details>
+  `
+},
+// FOOD BANKS 14
+{  name: "Richmond Food Bank Society",
+  category: "FoodBanks",
+  lat: 49.1729,
+  lng: -123.1417,
+  description: `
+    <b>Website:</b>
+    <a href="https://richmondfoodbank.org" target="_blank" rel="noopener noreferrer">
+      richmondfoodbank.org
+    </a><br>
+    <b>Phone:</b> (604) 271-5609<br>
+    <b>Address:</b> 100-5800 Cedarbridge Way, Richmond, BC<br>
+    <b>Rating:</b> ~4.6/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Weekly grocery distribution<br>
+      • Serves individuals and families<br>
+      • Volunteer-driven and community-supported<br>
+    </details>
+  `
+},
+// FOOD BANKS 15
+{  name: "Surrey Food Bank",
+  category: "FoodBanks",
+  lat: 49.1440,
+  lng: -122.8497,
+  description: `
+    <b>Website:</b>
+    <a href="https://surreyfoodbank.org" target="_blank" rel="noopener noreferrer">
+      surreyfoodbank.org
+    </a><br>
+    <b>Phone:</b> (604) 581-5443<br>
+    <b>Address:</b> Unit 1–13478 78 Ave, Surrey, BC<br>
+    <b>Rating:</b> ~4.5/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • One of the busiest food banks in BC<br>
+      • Regular hamper distribution<br>
+      • Serves large number of families<br>
+    </details>
+  `
+},
+// FOOD BANKS 16
+{  name: "SHARE Food Bank",
+  category: "FoodBanks",
+  lat: 49.2775,
+  lng: -122.8535,
+  description: `
+    <b>Website:</b>
+    <a href="https://sharesociety.ca" target="_blank" rel="noopener noreferrer">
+      sharesociety.ca
+    </a><br>
+    <b>Phone:</b> (604) 540-9161<br>
+    <b>Address:</b> 2615 Clarke St, Port Moody, BC<br>
+    <b>Rating:</b> ~4.5/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Serves Coquitlam, Port Coquitlam, Port Moody<br>
+      • Weekly food distribution<br>
+      • Community-based support programs<br>
+    </details>
+  `
+},
+// FOOD BANKS 17
+{  name: "AMS Food Bank (UBC)",
+  category: "FoodBanks",
+  lat: 49.2674,
+  lng: -123.2499,
+  description: `
+    <b>Website:</b>
+    <a href="https://www.ams.ubc.ca" target="_blank" rel="noopener noreferrer">
+      ams.ubc.ca
+    </a><br>
+    <b>Phone:</b> (604) 822-2371<br>
+    <b>Address:</b> 6138 Student Union Blvd, Vancouver, BC<br>
+    <b>Rating:</b> ~4.4/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Free food support for UBC students<br>
+      • Confidential and accessible<br>
+      • Includes pantry staples and hygiene items<br>
+    </details>
+  `
+},
+// FOOD BANKS 18
+{  name: "North Shore Harvest Project",
+  category: "FoodBanks",
+  lat: 49.3220,
+  lng: -123.1035,
+  description: `
+    <b>Website:</b>
+    <a href="https://harvestproject.org" target="_blank" rel="noopener noreferrer">
+      harvestproject.org
+    </a><br>
+    <b>Phone:</b> (604) 983-9483<br>
+    <b>Address:</b> 1073 Roosevelt Crescent, North Vancouver, BC<br>
+    <b>Rating:</b> ~4.7/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Client-choice food support (like a grocery store)<br>
+      • Focus on dignity and long-term stability<br>
+      • Also provides financial and wellness support<br>
+    </details>
+  `
+},
+// FOOD BANKS 19
+{  name: "South Delta Food Bank",
+  category: "FoodBanks",
+  lat: 49.0910,
+  lng: -123.0697,
+  description: `
+    <b>Website:</b>
+    <a href="https://southdeltafoodbank.ca" target="_blank" rel="noopener noreferrer">
+      southdeltafoodbank.ca
+    </a><br>
+    <b>Phone:</b> (604) 946-1967<br>
+    <b>Address:</b> 5545 Ladner Trunk Rd, Delta, BC<br>
+    <b>Rating:</b> ~4.6/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Serves Delta and surrounding communities<br>
+      • Weekly food hampers<br>
+      • Volunteer-run, community-supported<br>
+    </details>
+  `
+},
+
+
+// IMMIGRATION SERVICES 01
+{  name: "Immigrant Services Society of BC (ISSofBC)",
+  category: "ImmigrationServices",
+  lat: 49.2231,
+  lng: -122.9411,
+  description: `
+    <b>Website:</b>
+    <a href="https://issbc.org" target="_blank" rel="noopener noreferrer">
+      issbc.org
+    </a><br>
+    <b>Phone:</b> (604) 684-2561<br>
+    <b>Address:</b> 7355 Canada Wy, Burnaby, BC V3N 4Z6 <br>
+    <b>Rating:</b> ~4.5/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • One of the largest newcomer support organizations in BC<br>
+      • Free services: settlement, employment, English (LINC) classes<br>
+      • Helps with housing, jobs, healthcare, and legal navigation<br>
+      • Specialized refugee + asylum seeker programs<br>
+    </details>
+  `
+},
+// IMMIGRATION SERVICES 02
+{  name: "MOSAIC",
+  category: "ImmigrationServices",
+  lat: 49.2762,
+  lng: -123.1265,
+  description: `
+    <b>Website:</b>
+    <a href="https://mosaicbc.org" target="_blank" rel="noopener noreferrer">
+      mosaicbc.org
+    </a><br>
+    <b>Phone:</b> (604) 254-9626<br>
+    <b>Address:</b> 1255 Seymour St <br>
+    <b>Rating:</b> ~4.3/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • One of Canada’s largest settlement agencies<br>
+      • Services include employment help, English classes, counselling<br>
+      • Supports refugees, immigrants, and temporary workers<br>
+      • Services offered in 20+ languages<br>
+    </details>
+  `
+},
+// IMMIGRATION SERVICES 03
+{  name: "S.U.C.C.E.S.S.",
+  category: "ImmigrationServices",
+  lat: 49.2805,
+  lng: -123.1053,
+  description: `
+    <b>Website:</b>
+    <a href="https://successbc.ca" target="_blank" rel="noopener noreferrer">
+      successbc.ca
+    </a><br>
+    <b>Phone:</b> (604) 684-1628<br>
+    <b>Address:</b> 28 W Pender St, Vancouver, BC V6B 1R6, Canada<br>
+    <b>Rating:</b> ~4.4/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Settlement, employment, and language services<br>
+      • Helps newcomers integrate into Canadian society<br>
+      • Offers workshops, career training, and community programs<br>
+    </details>
+  `
+},
+// IMMIGRATION SERVICES 04
+{  name: "Options Community Services",
+  category: "ImmigrationServices",
+  lat: 49.1443,
+  lng: -122.8482,
+  description: `
+    <b>Website:</b>
+    <a href="https://dcrs.ca" target="_blank" rel="noopener noreferrer">
+      dcrs.ca
+    </a><br>
+    <b>Phone:</b> (604) 596 4321 <br>
+    <b>Address:</b> 13520 78 Ave, Surrey, BC V3W 8J6 <br>
+    <b>Rating:</b> 4.2/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Settlement, housing, employment, and counselling support<br>
+      • Programs for youth, families, and newcomers<br>
+      • Multilingual assistance available<br>
+    </details>
+  `
+},
+// IMMIGRATION SERVICES 05
+{  name: "Options Community Services",
+  category: "ImmigrationServices",
+  lat: 49.1504,
+  lng: -122.8463,
+  description: `
+    <b>Website:</b>
+    <a href="https://dcrs.ca" target="_blank" rel="noopener noreferrer">
+      dcrs.ca
+    </a><br>
+    <b>Address:</b> 13583 81 Ave, Surrey, BC V3W 3V8 <br>
+    <b>Rating:</b> 3.9/5<br><br>
+
+    <details>
+      <summary>More info</summary><br>
+      • Settlement, housing, employment, and counselling support<br>
+      • Programs for youth, families, and newcomers<br>
+      • Multilingual assistance available<br>
+    </details>
+  `
+},
+
+]  
+;
+
+
+    // 4. Add markers to the map
+    const markers = [];
+
+locations.forEach(loc => {
+  const marker = L.marker([loc.lat, loc.lng], {
+    icon: getIcon(loc.category)   
+  })
+  .bindPopup(`<b>${loc.name}</b><br>${loc.description}`);
+
+  marker.category = loc.category; 
+  marker.addTo(map);
+  markers.push(marker);           
+});
+
+    // 5. Filter functionality
+    const checkboxes = document.querySelectorAll('#filters input[type=checkbox]');
+
+    checkboxes.forEach(cb => {
+      cb.addEventListener('change', () => {
+        const selectedCategories = Array.from(checkboxes)
+                                        .filter(c => c.checked)
+                                        .map(c => c.value);
+        markers.forEach(marker => {
+          if (selectedCategories.includes(marker.category)) {
+            marker.addTo(map);
+          } else {
+            map.removeLayer(marker);
+          }
+        });
+      });
+    });
+
+  </script>
+</body>
+</html>
